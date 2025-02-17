@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsAuto - Agendador de Mensagens</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <h1>WhatsAuto</h1>
+        <button id="connection-btn">
+            <i class="fas fa-plug"></i>
+            <span>Conectar</span>
+        </button>
+    </header>
+
+    <main>
+        <form id="message-form">
+            <h2>Nova Mensagem</h2>
+            <div class="form-group">
+                <label>Título do Card</label>
+                <input type="text" name="title" required>
+            </div>
+            <div class="form-group">
+                <label>Conteúdo da Mensagem</label>
+                <textarea name="content" required></textarea>
+            </div>
+            <div class="form-group">
+                <label>Adicionar Mídia</label>
+                <input type="file" name="media">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Horário</label>
+                    <input type="time" name="time" required>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" name="daily"> Envio Diário
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Destinatário</label>
+                <select name="recipientType" id="recipientType">
+                    <option value="contact">Contato</option>
+                    <option value="group">Grupo</option>
+                </select>
+                <select name="recipient" id="recipient" required>
+                    <option value="">Selecione um contato ou grupo</option>
+                </select>
+            </div>
+            <div class="form-actions">
+                <button type="reset">Cancelar</button>
+                <button type="submit">Salvar</button>
+            </div>
+        </form>
+
+        <section id="messages-list">
+            <h2>Mensagens Agendadas</h2>
+            <div id="messages-container"></div>
+        </section>
+
+        <section id="history">
+            <h2>Histórico de Envios</h2>
+            <div id="history-items"></div>
+        </section>
+    </main>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/script.js"></script>
+</body>
+</html>

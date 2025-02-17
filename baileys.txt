@@ -1,0 +1,52 @@
+BAILEYS + FRONTEND
+
+sudo su root
+cd ~
+sudo apt update && sudo apt upgrade
+curl -fsSL https://deb.nodesource.com/setup_14.x | sudo -E bash -
+sudo apt-get install -y nodejs
+sudo apt install apt-transport-https ca-certificates curl software-properties-common
+sudo apt update
+sudo apt-get install git-all
+git clone https://github.com/pedroherpeto/baileys-zdg.git
+cd baileys-zdg
+
+* enviar via FTP ou criar direto no terminal com os comandos abaixo *
+nano app.js
+nano index.html
+nano check.svg
+
+sudo npm install qrcode
+sudo npm install socket.io
+sudo npm install
+
+sudo npm install -g pm2
+pm2 start app.js
+sudo service apache2 stop 
+sudo apt install nginx
+sudo rm /etc/nginx/sites-enabled/default
+sudo nano /etc/nginx/sites-available/baileys
+
+server {
+  server_name baileys.zapdasgalaxias.com.br;
+
+  location / {
+    proxy_pass http://127.0.0.1:8000;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection 'upgrade';
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_cache_bypass $http_upgrade;
+  }
+   }
+   
+sudo ln -s /etc/nginx/sites-available/baileys /etc/nginx/sites-enabled
+sudo nginx -t
+sudo service nginx restart
+sudo apt-get install snapd
+sudo snap install notes
+sudo snap install --classic certbot
+sudo certbot --nginx
