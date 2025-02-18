@@ -29,14 +29,14 @@
             </div>
             <div class="form-group">
                 <label>Adicionar Mídia</label>
-                <input type="file" name="media">
+                <input type="file" name="media" accept="image/*, video/*">
             </div>
             <div class="form-row">
                 <div class="form-group">
                     <label>Horário</label>
                     <input type="time" name="time" required>
                 </div>
-                <div class="form-group">
+                <div class="form-group checkbox-group">
                     <label>
                         <input type="checkbox" name="daily"> Envio Diário
                     </label>
@@ -44,17 +44,19 @@
             </div>
             <div class="form-group">
                 <label>Destinatário</label>
-                <select name="recipientType" id="recipientType">
-                    <option value="contact">Contato</option>
-                    <option value="group">Grupo</option>
-                </select>
-                <select name="recipient" id="recipient" required>
-                    <option value="">Selecione um contato ou grupo</option>
-                </select>
+                <div class="select-group">
+                    <select name="recipientType" id="recipientType">
+                        <option value="contact">Contato</option>
+                        <option value="group">Grupo</option>
+                    </select>
+                    <select name="recipient" id="recipient" required>
+                        <option value="">Selecione um contato ou grupo</option>
+                    </select>
+                </div>
             </div>
             <div class="form-actions">
-                <button type="reset">Cancelar</button>
-                <button type="submit">Salvar</button>
+                <button type="reset" class="btn secondary">Cancelar</button>
+                <button type="submit" class="btn primary">Salvar</button>
             </div>
         </form>
 
