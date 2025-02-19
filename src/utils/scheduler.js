@@ -19,7 +19,9 @@ function scheduleMessage(message, io) {
           content.caption = message.content;
         }
 
-        await sock.sendMessage(`${message.recipient}@s.whatsapp.net`, content);
+        // scheduler.js (corrigir formação do destinatário)
+        const jid = `${message.recipient}@${message.recipientType === 'group' ? 'g.us' : 's.whatsapp.net'}`;
+        await sock.sendMessage(jid, content);
 
         db.history.push({
           ...message,

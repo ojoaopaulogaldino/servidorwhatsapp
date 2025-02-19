@@ -164,6 +164,7 @@ const messagesContainer = document.getElementById('messages-container');
 const historyItems = document.getElementById('history-items');
 
 // Controle de Conexão
+// script.js (correção no evento de clique)
 connectionBtn.addEventListener('click', () => {
   if (connectionPopup) return;
 
@@ -182,7 +183,7 @@ connectionBtn.addEventListener('click', () => {
   `;
 
   document.body.appendChild(connectionPopup);
-  fetch('/api/connect', { method: 'POST' });
+  socket.emit('connect-whatsapp'); // Emitir evento via Socket.IO
 });
 
 // Receber QR Code

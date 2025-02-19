@@ -9,6 +9,12 @@ module.exports = (app) => {
   router.post('/messages', upload.single('media'), (req, res) => {
     createMessage(req, res, app.get('io'));
   });
+  // apiRoutes.js (adicionar rota de conexão)
+  router.post('/connect', (req, res) => {
+    const io = req.app.get('io');
+    startConnection(io);
+    res.sendStatus(200);
+  });
 
   app.use('/api', router);
 };
