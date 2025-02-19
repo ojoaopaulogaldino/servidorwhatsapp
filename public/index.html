@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
+
 <body>
     <header>
         <h1>WhatsAuto</h1>
@@ -42,16 +44,34 @@
                     </label>
                 </div>
             </div>
+            <!-- Campo para seleção de tipo de destinatário -->
             <div class="form-group">
-                <label>Destinatário</label>
-                <div class="select-group">
-                    <select name="recipientType" id="recipientType">
-                        <option value="contact">Contato</option>
-                        <option value="group">Grupo</option>
+                <label for="recipientType">Tipo de Destinatário</label>
+                <select id="recipientType" name="recipientType" class="form-control">
+                    <option value="contact">Contato</option>
+                    <option value="group">Grupo</option>
+                </select>
+            </div>
+
+            <!-- Campo para seleção de grupos (aparece apenas quando "Grupo" é selecionado) -->
+            <div class="form-group" id="group-select" style="display: none;">
+                <label for="group">Selecione um Grupo</label>
+                <select id="group" name="group" class="form-control">
+                    <option value="">Carregando grupos...</option>
+                </select>
+            </div>
+
+            <!-- Campo para seleção de contatos (aparece apenas quando "Contato" é selecionado) -->
+            <div class="form-group" id="contact-select" style="display: none;">
+                <label for="contact">Número do Contato</label>
+                <div class="input-group">
+                    <select id="ddi" name="ddi" class="form-control" style="width: 100px;">
+                        <option value="+55" data-emoji="🇧🇷">🇧🇷 +55</option>
+                        <option value="+1" data-emoji="🇺🇸">🇺🇸 +1</option>
+                        <option value="+52" data-emoji="🇲🇽">🇲🇽 +52</option>
+                        <!-- Adicione mais opções de DDI aqui -->
                     </select>
-                    <select name="recipient" id="recipient" required>
-                        <option value="">Selecione um contato ou grupo</option>
-                    </select>
+                    <input type="text" id="contact" name="contact" class="form-control" placeholder="Número do contato">
                 </div>
             </div>
             <div class="form-actions">
@@ -74,4 +94,5 @@
     <script src="/socket.io/socket.io.js"></script>
     <script src="/js/script.js"></script>
 </body>
+
 </html>

@@ -164,7 +164,6 @@ const messagesContainer = document.getElementById('messages-container');
 const historyItems = document.getElementById('history-items');
 
 // Controle de Conexão
-// script.js (correção no evento de clique)
 connectionBtn.addEventListener('click', () => {
   if (connectionPopup) return;
 
@@ -183,7 +182,7 @@ connectionBtn.addEventListener('click', () => {
   `;
 
   document.body.appendChild(connectionPopup);
-  socket.emit('connect-whatsapp'); // Emitir evento via Socket.IO
+  socket.emit('connect-whatsapp'); // Emitir evento para iniciar a conexão
 });
 
 // Receber QR Code
@@ -284,32 +283,84 @@ window.deleteMessage = async (id) => {
 };
 
 // Carregar grupos
+// script.js
+async function loadGroups() {
+  try {
+    const response = await fetch('/api/groups');
+    if (!response.ok) {
+      throw new Error(`Erro ao carregar grupos: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    console.log('Resposta da API:', data);
+
+    // Verifica se a resposta é um array
+    if (!Array.isArray(data)) {
+      throw new Error('Resposta da API não é um array');
+    }
+
+    const groupSelect = document.getElementById('group');
+    groupSelect.innerHTML = '<option value="">Selecione um grupo</option>';
+    data.forEach(group => {
+      const option = document.createElement('option');
+      option.value = group.id;
+      option.textContent = group.name;
+      groupSelect.appendChild(option);
+    });
+  } catch (error) {
+    console.error('Erro ao carregar grupos:', error);
+    alert('Erro ao carregar grupos. Verifique o console para mais detalhes.');
+  }
+}
+
+// Verificar se a conexão está ativa antes de carregar os grupos
+socket.on('connection-status', (status) => {
+  if (status) {
+    loadGroups(); // Carregar grupos apenas se a conexão estiver ativa
+  }
+});
+
+// Event listeners
+// Alternar entre grupo e contato
+document.getElementById('recipientType').addEventListener('change', (e) => {
+  const groupSelect = document.getElementById('group-select');
+  const contactSelect = document.getElementById('contact-select');
+
+  if (e.target.value === 'group') {
+    groupSelect.style.display = 'block';
+    contactSelect.style.display = 'none';
+    loadGroups(); // Carregar grupos
+  } else {
+    groupSelect.style.display = 'none';
+    contactSelect.style.display = 'block';
+  }
+});
+
+// Função para carregar grupos
 async function loadGroups() {
   try {
     const response = await fetch('/api/groups');
     const groups = await response.json();
-    const recipientSelect = document.getElementById('recipient');
-    
-    recipientSelect.innerHTML = '<option value="">Selecione um grupo</option>';
+    const groupSelect = document.getElementById('group');
+
+    groupSelect.innerHTML = '<option value="">Selecione um grupo</option>';
     groups.forEach(group => {
-      const option = new Option(group.name, group.id);
-      recipientSelect.add(option);
+      const option = document.createElement('option');
+      option.value = group.id;
+      option.textContent = group.name;
+      groupSelect.appendChild(option);
     });
   } catch (error) {
     console.error('Erro ao carregar grupos:', error);
   }
 }
 
-// Event listeners
-document.getElementById('recipientType').addEventListener('change', (e) => {
-  const recipientSelect = document.getElementById('recipient');
-  recipientSelect.innerHTML = '<option value="">Carregando...</option>';
-  
-  if (e.target.value === 'group') {
-    loadGroups();
-  } else {
-    recipientSelect.innerHTML = '<option value="">Selecione um contato</option>';
-  }
+// Adicionar emoji ao select de DDI
+const ddiSelect = document.getElementById('ddi');
+ddiSelect.addEventListener('change', (e) => {
+  const selectedOption = e.target.options[e.target.selectedIndex];
+  const emoji = selectedOption.getAttribute('data-emoji');
+  ddiSelect.style.backgroundImage = `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24">${emoji}</svg>')`;
 });
 
 // Inicialização

@@ -398,3 +398,25 @@ form {
   margin: 1rem auto;
   display: block;
 }
+
+/* Estilo para o select de DDI */
+#ddi {
+  appearance: none;
+  background-color: #f8f9fa;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  padding: 8px;
+  cursor: pointer;
+}
+
+/* Estilo para o input de número */
+#contact {
+  flex: 1;
+  margin-left: 10px;
+}
+
+/* Estilo para o grupo de inputs */
+.input-group {
+  display: flex;
+  align-items: center;
+}
