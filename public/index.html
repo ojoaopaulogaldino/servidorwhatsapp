@@ -54,12 +54,16 @@
             </div>
 
             <!-- Campo para seleção de grupos (aparece apenas quando "Grupo" é selecionado) -->
-            <div class="form-group" id="group-select">
+            <div class="form-group" id="group-select" style="display: none;">
                 <label for="group">Selecione um Grupo</label>
-                <select id="group" name="group" class="form-control">
-                    <option value="">Carregando grupos...</option>
+                <select id="group" name="group" class="form-control" disabled>
+                  <option value="">Carregando grupos...</option>
                 </select>
-            </div>
+                <div id="loading-spinner" style="display: none;">
+                  <span>Carregando grupos...</span>
+                  <!-- Adicione um ícone de carregamento aqui, se preferir -->
+                </div>
+              </div>
 
             <!-- Campo para seleção de contatos (aparece apenas quando "Contato" é selecionado) -->
             <div class="form-group" id="contact-select" style="display: none;">

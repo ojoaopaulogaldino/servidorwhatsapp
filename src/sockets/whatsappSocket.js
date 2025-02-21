@@ -17,7 +17,7 @@
 //   });
 // };
 // src/sockets/whatsappSocket.js
-const { startConnection, listarGrupos } = require('../services/whatsappService');
+const { startConnection } = require('../services/whatsappService');
 
 module.exports = (io) => {
   io.on('connection', (socket) => {
@@ -30,17 +30,6 @@ module.exports = (io) => {
         console.log('Conexão WhatsApp iniciada com sucesso');
       } catch (error) {
         console.error('Erro ao iniciar conexão WhatsApp:', error);
-        socket.emit('connection-error', error.message);
-      }
-    });
-
-    // Envia a lista de grupos para o frontend
-    socket.on('request-groups', async () => {
-      try {
-        const grupos = await listarGrupos();
-        socket.emit('update-groups', grupos);
-      } catch (error) {
-        console.error('Erro ao enviar grupos:', error);
         socket.emit('connection-error', error.message);
       }
     });

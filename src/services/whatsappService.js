@@ -52,43 +52,44 @@ let connectionStatus = false;
 
 async function startConnection(io) {
   try {
-    // Carrega o estado de autenticação
     const { state, saveCreds } = await useMultiFileAuthState('auth');
 
-    // Cria a conexão com o WhatsApp
+    // whatsappService.js
     sock = makeWASocket({
       auth: state,
       printQRInTerminal: true,
       markOnlineOnConnect: false,
+      browser: ["Chrome (Linux)", "", ""], // Força um user-agent específico
+      connectTimeoutMs: 60000, // Aumenta o timeout de conexão
+      keepAliveIntervalMs: 30000 // Mantém a conexão ativa
     });
 
-    // Salva as credenciais quando necessário
     sock.ev.on('creds.update', saveCreds);
 
-    // Escuta atualizações de conexão
-    sock.ev.on('connection.update', async (update) => {
+    sock.ev.on('connection.update', (update) => {
       const { connection, qr } = update;
 
-      // Exibe o QR Code para conexão
       if (qr) {
-        const qrCodeUrl = await qrcode.toDataURL(qr);
-        io.emit('qr', qrCodeUrl); // Envia o QR Code para o frontend
+        qrcode.toDataURL(qr).then((url) => {
+          io.emit('qr', url);
+        });
       }
 
-      // Quando a conexão é estabelecida
       if (connection === 'open') {
         connectionStatus = true;
         io.emit('connection-status', true);
 
         // Lista os grupos e envia para o frontend
-        const grupos = await listarGrupos();
-        io.emit('update-groups', grupos);
+        listarGrupos(io);
       }
 
-      // Verifica se a conexão foi fechada
       if (connection === 'close') {
         connectionStatus = false;
         io.emit('connection-status', false);
+      }
+      if (update.connection === 'close') {
+        console.log('Reconectando...');
+        startConnection(io); // Reconecta automaticamente
       }
     });
 
@@ -100,7 +101,7 @@ async function startConnection(io) {
 }
 
 // Função para listar grupos
-async function listarGrupos() {
+async function listarGrupos(io) {
   try {
     if (!sock) {
       throw new Error('Conexão WhatsApp não inicializada');
@@ -115,11 +116,17 @@ async function listarGrupos() {
       name: grupo.subject || 'Grupo sem nome',
     }));
 
-    return formattedGroups;
+    // Envia os grupos para o frontend
+    io.emit('update-groups', formattedGroups);
   } catch (error) {
     console.error('Erro ao listar grupos:', error);
-    throw error;
+    io.emit('log', `Erro ao listar grupos: ${error.message}`);
   }
 }
 
-module.exports = { startConnection, sock, connectionStatus, listarGrupos };
+// Exporta o objeto sock para ser usado em outros módulos
+function getSock() {
+  return sock;
+}
+
+module.exports = { startConnection, getSock, connectionStatus, listarGrupos };
