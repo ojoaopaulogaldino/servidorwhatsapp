@@ -259,7 +259,7 @@ form {
 }
 
 .form-group label {
-  display: block;
+  display: flex;
   margin-bottom: 0.5rem;
   font-weight: 500;
 }
@@ -267,7 +267,7 @@ form {
 .form-group input,
 .form-group textarea,
 .form-group select {
-  width: 100%;
+  width: 90%;
   padding: 0.8rem;
   border: 2px solid var(--border);
   border-radius: 8px;
@@ -286,6 +286,7 @@ form {
   display: flex;
   gap: 1rem;
   flex-wrap: wrap;
+  justify-content: space-between;
 }
 
 .checkbox-group {
@@ -419,4 +420,8 @@ form {
 .input-group {
   display: flex;
   align-items: center;
+}
+
+input[type = "checkbox"]{
+  cursor: pointer;
 }
