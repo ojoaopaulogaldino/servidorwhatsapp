@@ -295,7 +295,23 @@ window.deleteMessage = async (id) => {
 
 // Atualiza a lista de mensagens quando recebe uma atualização
 socket.on('update-messages', (messages) => {
-  renderMessages(messages);
+  const messagesContainer = document.getElementById('messages-container');
+  messagesContainer.innerHTML = messages.map(msg => `
+    <div class="message-card">
+      ${msg.media ? `<img src="${msg.media}" alt="Mídia anexada">` : ''}
+      <div class="message-content">
+        <h3>${msg.title}</h3>
+        <p>${msg.content}</p>
+        <div class="message-meta">
+          <small>${msg.time} ${msg.daily ? '(Diário)' : ''}</small>
+          <small>${msg.sent ? 'Enviada' : 'Agendada'}</small>
+          <button class="btn secondary" onclick="deleteMessage('${msg.id}')">
+            Excluir
+          </button>
+        </div>
+      </div>
+    </div>
+  `).join('');
 });
 
 function renderHistory(history) {

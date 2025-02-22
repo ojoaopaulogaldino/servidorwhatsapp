@@ -215,5 +215,5 @@ const PORT = process.env.PORT || 3000;
 
 // Inicia o servidor
 app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
+  console.log(`Servidor rodando na porta ${PORT} \n acesse em http://localhost:3000`);
 });

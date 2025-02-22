@@ -1,20 +1,27 @@
-// src/config/multer.js
 const multer = require('multer');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
+const fs = require('fs');
 
-// Configuração do armazenamento
+const uploadsDir = path.join(__dirname, '../../uploads');
+
+// Cria o diretório se não existir
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/'); // Pasta onde os arquivos serão salvos
+    cb(null, uploadsDir);
   },
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname);
-    cb(null, `${uuidv4()}${ext}`); // Gera um nome único para o arquivo
+    const filename = `${uuidv4()}${ext}`;
+    console.log(`Arquivo salvo: ${filename}`);
+    cb(null, filename);
   },
 });
 
-// Filtro para aceitar apenas imagens e vídeos
 const fileFilter = (req, file, cb) => {
   if (file.mimetype.startsWith('image/') || file.mimetype.startsWith('video/')) {
     cb(null, true);
@@ -23,11 +30,10 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-// Configuração do multer
 const upload = multer({
   storage,
   fileFilter,
-  limits: { fileSize: 5 * 1024 * 1024 }, // Limite de 5MB
+  limits: { fileSize: 5 * 1024 * 1024 },
 });
 
 module.exports = upload;

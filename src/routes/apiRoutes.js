@@ -33,6 +33,10 @@ module.exports = (app) => {
 
   // Rota para enviar mensagens
   router.post('/messages', upload.single('media'), (req, res) => {
+    const sock = getSock(); // Obtém a instância do socket
+    if (!sock) {
+      return res.status(400).json({ error: 'Conecte ao WhatsApp primeiro' });
+    }
     createMessage(req, res, app.get('io'));
   });
 

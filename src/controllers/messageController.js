@@ -1,12 +1,10 @@
 // src/controllers/messageController.js
 const { saveDB, db } = require('../utils/database');
 const { getSock } = require('../services/whatsappService');
+const path = require('path');
+const fs = require('fs');
 
-// src/controllers/messageController.js
 function createMessage(req, res, io) {
-  console.log('Dados recebidos:', req.body); // Log dos dados recebidos
-  console.log('Arquivo recebido:', req.file); // Log do arquivo recebido
-
   const { title, content, time, daily, recipientType, group, contact, ddi } = req.body;
 
   try {
@@ -21,7 +19,7 @@ function createMessage(req, res, io) {
       if (!group) {
         throw new Error('Selecione um grupo');
       }
-      recipient = `${group}@g.us`; // Formato de ID de grupo no WhatsApp
+      recipient = group.endsWith('@g.us') ? group : `${group}@g.us`; // Evita duplicação // Formato de ID de grupo no WhatsApp
     } else if (recipientType === 'contact') {
       if (!contact || !ddi) {
         throw new Error('Preencha o número do contato e o DDI');
@@ -39,12 +37,15 @@ function createMessage(req, res, io) {
       throw new Error('Selecione um horário de envio');
     }
 
+    // Define o caminho da mídia (se houver upload)
+    const mediaPath = req.file ? path.join(__dirname, '../../uploads', req.file.filename) : null;
+
     // Cria a mensagem agendada
     const scheduledMessage = {
       id: require('uuid').v4(),
       title,
       content,
-      media: req.file ? `/uploads/${req.file.filename}` : null, // Caminho da mídia, se houver
+      media: mediaPath, // Caminho da mídia, se houver
       time,
       daily: daily === 'on', // Converte o valor do checkbox para booleano
       recipient,
@@ -67,8 +68,6 @@ function createMessage(req, res, io) {
 }
 
 // Função para agendar a mensagem
-// src/controllers/messageController.js
-// src/controllers/messageController.js
 async function scheduleMessage(message, io) {
   const now = new Date();
   const [hours, minutes] = message.time.split(':');
@@ -90,23 +89,30 @@ async function scheduleMessage(message, io) {
           throw new Error('Conexão WhatsApp não inicializada');
         }
 
-        // Prepara o conteúdo da mensagem
-        const content = {
-          text: message.content,
-        };
-
-        // Adiciona mídia, se houver
-        if (message.media) {
-          const buffer = require('fs').readFileSync(require('path').join(__dirname, '../../', message.media));
-          content.image = buffer;
-          content.caption = message.content;
+        // Verifica se a conexão está ativa
+        if (!sock.user) {
+          throw new Error('Conexão WhatsApp não está ativa');
         }
 
-        console.log('Conteúdo da mensagem:', content); // Log do conteúdo da mensagem
+        if (message.media) {
+          console.log('Caminho da mídia:', message.media); // Log para depuração
+          console.log('Agendando mensagem:', {
+            id: message.id,
+            title: message.title,
+            time: message.time,
+            daily: message.daily,
+            recipient: message.recipient,
+            media: message.media ? 'Sim' : 'Não'
+          });
+          if (!fs.existsSync(message.media)) {
+            throw new Error(`Arquivo de mídia não encontrado: ${message.media}`);
+          }
 
-        // Aumenta o tempo limite para envio de mensagens
-        const timeout = 30000; // 30 segundos
-        await sock.sendMessage(message.recipient, content, { timeout });
+          const buffer = fs.readFileSync(message.media);
+          await sock.sendMessage(message.recipient, { image: buffer, caption: message.content });
+        } else {
+          await sock.sendMessage(message.recipient, { text: message.content });
+        }
 
         // Atualiza o status da mensagem
         message.sent = true;
@@ -121,29 +127,6 @@ async function scheduleMessage(message, io) {
     }, delay);
   }
 
-  // messageController.js
-  if (message.media) {
-    // Envia a mídia como um upload do WhatsApp
-    const mediaMessage = await sock.prepareMessage(
-      message.recipient,
-      {
-        image: { url: message.media }, // Usa o caminho do arquivo
-        caption: message.content
-      },
-      {
-        upload: true,
-        mediaType: 'image', // ou 'video' se for vídeo
-        timeout: 30000
-      }
-    );
-
-    await sock.relayMessage(message.recipient, mediaMessage.message, {
-      messageId: mediaMessage.key.id
-    });
-  } else {
-    await sock.sendMessage(message.recipient, { text: message.content }, { timeout: 30000 });
-  }
-
   // Se for uma mensagem diária, agenda novamente
   if (message.daily) {
     setInterval(async () => {
@@ -153,26 +136,24 @@ async function scheduleMessage(message, io) {
           throw new Error('Conexão WhatsApp não inicializada');
         }
 
-        // Prepara o conteúdo da mensagem
-        const content = {
-          text: message.content,
-        };
-
-        // Adiciona mídia, se houver
-        if (message.media) {
-          const buffer = require('fs').readFileSync(require('path').join(__dirname, '../../', message.media));
-          content.image = buffer;
-          content.caption = message.content;
+        // Verifica se a conexão está ativa
+        if (!sock.user) {
+          throw new Error('Conexão WhatsApp não está ativa');
         }
 
-        console.log('Conteúdo da mensagem diária:', content); // Log do conteúdo da mensagem diária
+        if (message.media) {
+          if (!fs.existsSync(message.media)) {
+            throw new Error(`Arquivo de mídia não encontrado: ${message.media}`);
+          }
 
-        // Aumenta o tempo limite para envio de mensagens
-        const timeout = 30000; // 30 segundos
-        await sock.sendMessage(message.recipient, content, { timeout });
+          const buffer = fs.readFileSync(message.media);
+          await sock.sendMessage(message.recipient, { image: buffer, caption: message.content });
+        } else {
+          await sock.sendMessage(message.recipient, { text: message.content });
+        }
 
         // Atualiza o status da mensagem
-        message.sent = true;
+        message.sent = false; // Permite que a mensagem seja enviada novamente no próximo dia
         saveDB();
 
         // Envia atualização para o frontend
